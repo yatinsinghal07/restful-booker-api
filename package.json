@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "test": "playwright test",
+    "test:crud": "playwright test Booking.crud.spec.ts",
+    "test:auth": "playwright test auth.spec.ts",
+    "test:filters": "playwright test booking.spec.ts",
+    "test:negative": "playwright test negative.spec.ts",
+    "report": "playwright show-report"
+  }
+}
