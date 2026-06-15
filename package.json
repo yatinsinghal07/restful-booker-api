@@ -6,5 +6,8 @@
     "test:filters": "playwright test booking.spec.ts",
     "test:negative": "playwright test negative.spec.ts",
     "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0"
   }
 }
