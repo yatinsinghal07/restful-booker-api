@@ -9,13 +9,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: restful-booker-api
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Check project files
+        run: ls -la
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -33,5 +32,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: restful-booker-api/playwright-report/
+          path: playwright-report/
           retention-days: 7
