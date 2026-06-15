@@ -1,11 +1,11 @@
 name: PLAYWRIGHT API TESTS
 
-ON:
+on:
   push:
     branches: [main]
-  WORKFLOW_DISPATCH:
+  workflow_dispatch:
 
-JOBS:
+jobs:
   TEST:
     RUNS-ON: ubuntu-latest
 
