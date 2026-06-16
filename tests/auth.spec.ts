@@ -11,7 +11,7 @@ test.describe('Auth API — Edge Cases', () => {
 
   // ── 1. Valid credentials ─────────────────────────────────────
   test('POST /auth — returns a token with valid credentials', async ({ request }) => {
-    const res = await request.post(`${BASE_URL}/auth`, {
+    const res = await request.post(`/auth`, {
       data: validCredentials,
     });
     const body = await res.json();
@@ -25,7 +25,7 @@ test.describe('Auth API — Edge Cases', () => {
 
   // ── 2. Wrong password ────────────────────────────────────────
   test('POST /auth — returns "Bad credentials" for wrong password', async ({ request }) => {
-    const res = await request.post(`${BASE_URL}/auth`, {
+    const res = await request.post(`/auth`, {
       data: invalidPasswordCredentials,
     });
     const body = await res.json();
@@ -39,7 +39,7 @@ test.describe('Auth API — Edge Cases', () => {
 
   // ── 3. Wrong username ────────────────────────────────────────
   test('POST /auth — returns "Bad credentials" for wrong username', async ({ request }) => {
-    const res = await request.post(`${BASE_URL}/auth`, {
+    const res = await request.post(`/auth`, {
       data: invalidUsernameCredentials,
     });
     const body = await res.json();
@@ -52,7 +52,7 @@ test.describe('Auth API — Edge Cases', () => {
 
   // ── 4. Empty credentials ─────────────────────────────────────
   test('POST /auth — returns "Bad credentials" for empty username and password', async ({ request }) => {
-    const res = await request.post(`${BASE_URL}/auth`, {
+    const res = await request.post(`/auth`, {
       data: emptyCredentials,
     });
     const body = await res.json();
@@ -65,7 +65,7 @@ test.describe('Auth API — Edge Cases', () => {
 
   // ── 5. Missing fields ─────────────────────────────────────────
   test('POST /auth — returns "Bad credentials" when fields are missing', async ({ request }) => {
-    const res = await request.post(`${BASE_URL}/auth`, {
+    const res = await request.post(`/auth`, {
       data: {},
     });
     const body = await res.json();
@@ -79,8 +79,8 @@ test.describe('Auth API — Edge Cases', () => {
   // ── 6. Token uniqueness ──────────────────────────────────────
   test('POST /auth — two valid auth calls return different tokens', async ({ request }) => {
     const [res1, res2] = await Promise.all([
-      request.post(`${BASE_URL}/auth`, { data: validCredentials }),
-      request.post(`${BASE_URL}/auth`, { data: validCredentials }),
+      request.post(`/auth`, { data: validCredentials }),
+      request.post(`/auth`, { data: validCredentials }),
     ]);
 
     const [body1, body2] = await Promise.all([res1.json(), res2.json()]);
@@ -99,7 +99,7 @@ test.describe('Auth API — Edge Cases', () => {
   test('POST /auth — responds within 3 seconds', async ({ request }) => {
     const start = Date.now();
 
-    const res = await request.post(`${BASE_URL}/auth`, {
+    const res = await request.post(`/auth`, {
       data: validCredentials,
     });
 

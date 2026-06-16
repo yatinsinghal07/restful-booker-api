@@ -26,7 +26,7 @@ test.describe.serial('Booking API', () => {
 
   // ── 1. Create ───────────────────────────────────────────────
   test('POST /booking — creates a booking and returns correct data', async ({ request }) => {
-    const res = await request.post(`${BASE_URL}/booking`, { data: bookingPayload });
+    const res = await request.post(`/booking`, { data: bookingPayload });
     const body = await res.json();
 
     expect(res.status()).toBe(200);
@@ -45,7 +45,7 @@ test.describe.serial('Booking API', () => {
   test('GET /booking/:id — retrieves the created booking', async ({ request }) => {
     expect(bookingId, 'Booking id is missing. Ensure create test runs first').toBeDefined();
 
-    const res = await request.get(`${BASE_URL}/booking/${bookingId}`);
+    const res = await request.get(`/booking/${bookingId}`);
     const body = await res.json();
 
     ValidateStatus(res, 200);
@@ -57,7 +57,7 @@ test.describe.serial('Booking API', () => {
   test('PUT /booking/:id — fully replaces booking data', async ({ request }) => {
     expect(bookingId, 'Booking id is missing. Ensure create test runs first').toBeDefined();
 
-    const res = await request.put(`${BASE_URL}/booking/${bookingId}`, {
+    const res = await request.put(`/booking/${bookingId}`, {
       headers: authHeaders(),
       data: updatedBookingPayload,
     });
@@ -72,7 +72,7 @@ test.describe.serial('Booking API', () => {
   test('PATCH /booking/:id — partially updates booking data', async ({ request }) => {
     expect(bookingId, 'Booking id is missing. Ensure create test runs first').toBeDefined();
 
-    const res = await request.patch(`${BASE_URL}/booking/${bookingId}`, {
+    const res = await request.patch(`/booking/${bookingId}`, {
       headers: authHeaders(),
       data: partialUpdatePayload,
     });
@@ -90,7 +90,7 @@ test.describe.serial('Booking API', () => {
   test('DELETE /booking/:id — removes the booking', async ({ request }) => {
     expect(bookingId, 'Booking id is missing. Ensure create test runs first').toBeDefined();
 
-    const deleteRes = await request.delete(`${BASE_URL}/booking/${bookingId}`, {
+    const deleteRes = await request.delete(`/booking/${bookingId}`, {
       headers: authHeaders(),
     });
 
@@ -99,7 +99,7 @@ test.describe.serial('Booking API', () => {
    
 
     // Confirm it's actually gone
-    const verifyRes = await request.get(`${BASE_URL}/booking/${bookingId}`);
+    const verifyRes = await request.get(`/booking/${bookingId}`);
     ValidateStatus(verifyRes, 404);
   });
 });

@@ -14,7 +14,7 @@ test.describe.serial('Get Bookings — Listing & Filters', () => {
 
   // Create a known booking before filter tests
   test.beforeAll(async ({ request }) => {
-    const res = await request.post(`${BASE_URL}/booking`, { data: seedBookingPayload });
+    const res = await request.post(`/booking`, { data: seedBookingPayload });
     const body = await res.json();
     expect(res.status()).toBe(200);
     seededId = body.bookingid;
@@ -24,19 +24,19 @@ test.describe.serial('Get Bookings — Listing & Filters', () => {
   test.afterAll(async ({ request }) => {
     if (!seededId) return;
 
-    const authRes = await request.post(`${BASE_URL}/auth`, {
+    const authRes = await request.post(`/auth`, {
       data: validCredentials,
     });
     const { token } = await authRes.json();
 
-    await request.delete(`${BASE_URL}/booking/${seededId}`, {
+    await request.delete(`/booking/${seededId}`, {
       headers: { Cookie: `token=${token}` },
     });
   });
 
   // ── 1. List all bookings ──────────────────────────────────────
   test('GET /booking — returns a list of booking IDs', async ({ request }) => {
-    const res = await request.get(`${BASE_URL}/booking`);
+    const res = await request.get(`/booking`);
     const body = await res.json();
 
     expect(res.status()).toBe(200);
@@ -52,7 +52,7 @@ test.describe.serial('Get Bookings — Listing & Filters', () => {
 
   // ── 2. Seeded ID appears in the list ─────────────────────────
   test('GET /booking — seeded booking ID appears in the list', async ({ request }) => {
-    const res = await request.get(`${BASE_URL}/booking`);
+    const res = await request.get(`/booking`);
     const body: { bookingid: number }[] = await res.json();
 
     const ids = body.map((b) => b.bookingid);
@@ -61,7 +61,7 @@ test.describe.serial('Get Bookings — Listing & Filters', () => {
 
   // ── 3. Filter by firstname ────────────────────────────────────
   test('GET /booking?firstname= — filters by firstname', async ({ request }) => {
-    const res = await request.get(`${BASE_URL}/booking?firstname=${seedBookingPayload.firstname}`);
+    const res = await request.get(`/booking?firstname=${seedBookingPayload.firstname}`);
     const body: { bookingid: number }[] = await res.json();
 
     expect(res.status()).toBe(200);
@@ -73,7 +73,7 @@ test.describe.serial('Get Bookings — Listing & Filters', () => {
 
   // ── 4. Filter by lastname ─────────────────────────────────────
   test('GET /booking?lastname= — filters by lastname', async ({ request }) => {
-    const res = await request.get(`${BASE_URL}/booking?lastname=${seedBookingPayload.lastname}`);
+    const res = await request.get(`/booking?lastname=${seedBookingPayload.lastname}`);
     const body: { bookingid: number }[] = await res.json();
 
     expect(res.status()).toBe(200);
@@ -84,7 +84,7 @@ test.describe.serial('Get Bookings — Listing & Filters', () => {
   // ── 5. Filter by checkin date ─────────────────────────────────
   test('GET /booking?checkin= — filters by checkin date', async ({ request }) => {
     const res = await request.get(
-      `${BASE_URL}/booking?checkin=${seedBookingPayload.bookingdates.checkin}`,
+      `/booking?checkin=${seedBookingPayload.bookingdates.checkin}`,
     );
     const body: { bookingid: number }[] = await res.json();
 
@@ -95,7 +95,7 @@ test.describe.serial('Get Bookings — Listing & Filters', () => {
   // ── 6. Filter by checkout date ────────────────────────────────
   test('GET /booking?checkout= — filters by checkout date', async ({ request }) => {
     const res = await request.get(
-      `${BASE_URL}/booking?checkout=${seedBookingPayload.bookingdates.checkout}`,
+      `/booking?checkout=${seedBookingPayload.bookingdates.checkout}`,
     );
     const body: { bookingid: number }[] = await res.json();
 
@@ -106,7 +106,7 @@ test.describe.serial('Get Bookings — Listing & Filters', () => {
   // ── 7. Filter by firstname + lastname (combined) ──────────────
   test('GET /booking?firstname=&lastname= — combined filter returns correct booking', async ({ request }) => {
     const res = await request.get(
-      `${BASE_URL}/booking?firstname=${seedBookingPayload.firstname}&lastname=${seedBookingPayload.lastname}`,
+      `/booking?firstname=${seedBookingPayload.firstname}&lastname=${seedBookingPayload.lastname}`,
     );
     const body: { bookingid: number }[] = await res.json();
 
@@ -117,7 +117,7 @@ test.describe.serial('Get Bookings — Listing & Filters', () => {
 
   // ── 8. Non-existent name returns empty array ──────────────────
   test('GET /booking?firstname= — non-existent name returns empty list', async ({ request }) => {
-    const res = await request.get(`${BASE_URL}/booking?firstname=ZZZNoSuchPerson999`);
+    const res = await request.get(`/booking?firstname=ZZZNoSuchPerson999`);
     const body = await res.json();
 
     expect(res.status()).toBe(200);
