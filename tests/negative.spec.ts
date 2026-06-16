@@ -2,12 +2,6 @@ import { test, expect } from '@playwright/test';
 import { validCredentials } from '../test-data/authData';
 import { validBookingPayload } from '../test-data/bookingData';
 
-
-
-// ─── Constants ────────────────────────────────────────────────
-const BASE_URL = 'https://restful-booker.herokuapp.com';
-
-
 // ─── Shared state ─────────────────────────────────────────────
 let validToken: string;
 let existingId: number;
