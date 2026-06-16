@@ -3,6 +3,7 @@ import {bookingPayload, updatedBookingPayload, partialUpdatePayload} from '../te
 import { validCredentials } from '../test-data/authData';
 import { getAuthToken } from '../utils/authHelper';
 import {validatejsonHeader, ValidateStatus, validateBookingData} from '../utils/responseValidator';
+import { createBooking, getBooking, updateBooking, partialUpdateBooking, deleteBooking } from '../utils/bookingApi';
 
 // ─── Constants ────────────────────────────────────────────────
 const BASE_URL = 'https://restful-booker.herokuapp.com';
@@ -26,7 +27,7 @@ test.describe.serial('Booking API', () => {
 
   // ── 1. Create ───────────────────────────────────────────────
   test('POST /booking — creates a booking and returns correct data', async ({ request }) => {
-    const res = await request.post(`/booking`, { data: bookingPayload });
+    const res = await createBooking(request, bookingPayload);
     const body = await res.json();
 
     expect(res.status()).toBe(200);
@@ -45,7 +46,7 @@ test.describe.serial('Booking API', () => {
   test('GET /booking/:id — retrieves the created booking', async ({ request }) => {
     expect(bookingId, 'Booking id is missing. Ensure create test runs first').toBeDefined();
 
-    const res = await request.get(`/booking/${bookingId}`);
+    const res = await getBooking(request, bookingId);
     const body = await res.json();
 
     ValidateStatus(res, 200);
@@ -56,11 +57,7 @@ test.describe.serial('Booking API', () => {
   // ── 3. Full update (PUT) ─────────────────────────────────────
   test('PUT /booking/:id — fully replaces booking data', async ({ request }) => {
     expect(bookingId, 'Booking id is missing. Ensure create test runs first').toBeDefined();
-
-    const res = await request.put(`/booking/${bookingId}`, {
-      headers: authHeaders(),
-      data: updatedBookingPayload,
-    });
+    const res = await updateBooking(request, bookingId, updatedBookingPayload, token);
     const body = await res.json();
 
     ValidateStatus(res, 200);
@@ -71,11 +68,7 @@ test.describe.serial('Booking API', () => {
   // ── 4. Partial update (PATCH) ────────────────────────────────
   test('PATCH /booking/:id — partially updates booking data', async ({ request }) => {
     expect(bookingId, 'Booking id is missing. Ensure create test runs first').toBeDefined();
-
-    const res = await request.patch(`/booking/${bookingId}`, {
-      headers: authHeaders(),
-      data: partialUpdatePayload,
-    });
+    const res = await partialUpdateBooking(request, bookingId, partialUpdatePayload, token);
     const body = await res.json();
 
     ValidateStatus(res, 200);
@@ -89,10 +82,7 @@ test.describe.serial('Booking API', () => {
   // ── 5. Delete ────────────────────────────────────────────────
   test('DELETE /booking/:id — removes the booking', async ({ request }) => {
     expect(bookingId, 'Booking id is missing. Ensure create test runs first').toBeDefined();
-
-    const deleteRes = await request.delete(`/booking/${bookingId}`, {
-      headers: authHeaders(),
-    });
+    const deleteRes = await deleteBooking(request, bookingId, token);
 
     // ⚠️ restful-booker returns 201 (not 200) on successful delete
     ValidateStatus(deleteRes, 201);
