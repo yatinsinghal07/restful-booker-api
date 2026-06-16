@@ -1,6 +1,6 @@
 export const bookingPayload = {
-  firstname: 'John',
-  lastname: 'Doe',
+  firstname: `John${Date.now()}`,
+  lastname: `Doe${Date.now()}`,
   totalprice: 1000,
   depositpaid: true,
   bookingdates: {
@@ -11,8 +11,8 @@ export const bookingPayload = {
 };
 
 export const updatedBookingPayload = {
-  firstname: 'Eranga',
-  lastname: 'Fernando',
+  firstname: `Eranga${Date.now()}`,
+  lastname: `Fernando${Date.now()}`,
   totalprice: 1200,
   depositpaid: true,
   bookingdates: {
@@ -28,8 +28,8 @@ export const partialUpdatePayload = {
 };
 
 export const seedBookingPayload = {
-  firstname: 'FilterTest',
-  lastname: 'User',
+  firstname: `FilterTest${Date.now()}`,
+  lastname: `User${Date.now()}`,
   totalprice: 500,
   depositpaid: false,
   bookingdates: {
@@ -40,8 +40,8 @@ export const seedBookingPayload = {
 };
 
 export const validBookingPayload = {
-  firstname: 'NegTest',
-  lastname: 'User',
+  firstname: `NegTest${Date.now()}`,
+  lastname: `User${Date.now()}`,
   totalprice: 100,
   depositpaid: true,
   bookingdates: {
