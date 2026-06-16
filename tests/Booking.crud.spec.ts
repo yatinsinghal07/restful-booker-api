@@ -26,7 +26,7 @@ test.describe.serial('Booking API', () => {
   });
 
   // ── 1. Create ───────────────────────────────────────────────
-  test('POST /booking — creates a booking and returns correct data', async ({ request }) => {
+  test('@smoke POST /booking — creates a booking and returns correct data', async ({ request }) => {
     const res = await createBooking(request, bookingPayload);
     const body = await res.json();
 
@@ -55,7 +55,7 @@ test.describe.serial('Booking API', () => {
   });
 
   // ── 3. Full update (PUT) ─────────────────────────────────────
-  test('PUT /booking/:id — fully replaces booking data', async ({ request }) => {
+  test('@SMOKE PUT /booking/:id — fully replaces booking data', async ({ request }) => {
     expect(bookingId, 'Booking id is missing. Ensure create test runs first').toBeDefined();
     const res = await updateBooking(request, bookingId, updatedBookingPayload, token);
     const body = await res.json();
@@ -80,7 +80,7 @@ test.describe.serial('Booking API', () => {
   });
 
   // ── 5. Delete ────────────────────────────────────────────────
-  test('DELETE /booking/:id — removes the booking', async ({ request }) => {
+  test('@SMOKE DELETE /booking/:id — removes the booking', async ({ request }) => {
     expect(bookingId, 'Booking id is missing. Ensure create test runs first').toBeDefined();
     const deleteRes = await deleteBooking(request, bookingId, token);
 
