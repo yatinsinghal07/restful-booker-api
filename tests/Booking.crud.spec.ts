@@ -5,10 +5,6 @@ import { getAuthToken } from '../utils/authHelper';
 import {validatejsonHeader, ValidateStatus, validateBookingData} from '../utils/responseValidator';
 import { createBooking, getBooking, updateBooking, partialUpdateBooking, deleteBooking } from '../utils/bookingApi';
 
-// ─── Constants ────────────────────────────────────────────────
-const BASE_URL = 'https://restful-booker.herokuapp.com';
-
-
 // ─── Shared state ─────────────────────────────────────────────
 let token: string;
 let bookingId: number;

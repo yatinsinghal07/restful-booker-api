@@ -1,5 +1,6 @@
 {
-  "scripts": {
+  "scripts": 
+  {
     "test": "playwright test",
     "test:crud": "playwright test Booking.crud.spec.ts",
     "test:auth": "playwright test auth.spec.ts",
@@ -7,9 +8,6 @@
     "test:negative": "playwright test negative.spec.ts",
     "report": "playwright show-report",
     "test:smoke": "playwright test --grep @smoke",
-  "test:regression": "playwright test --grep @regression"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.61.0"
+    "test:regression": "playwright test --grep @regression"
   }
 }
