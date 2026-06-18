@@ -12,7 +12,7 @@ export default defineConfig({
     ['list'],
   ],
   use: {
-    baseURL: 'https://restful-booker.com',
+    baseURL: 'https://restful-booker.herokuapp.com',
     extraHTTPHeaders: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
