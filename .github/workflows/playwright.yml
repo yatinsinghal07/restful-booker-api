@@ -23,11 +23,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Check project files
-        run: |
-          ls -la
-          cat package.json
-
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
@@ -37,15 +32,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # API tests ke liye browser install required nahi hota.
-      # Agar UI tests bhi hain, tab uncomment karna.
-      # - name: Install Playwright browsers
-      #   run: npx playwright install --with-deps chromium
-
       - name: Run Playwright API tests
         run: npx playwright test --reporter=html
 
-      # Backup artifact - Actions tab se download kar sakte ho
       - name: Upload Playwright HTML report as backup
         if: always()
         uses: actions/upload-artifact@v6
@@ -54,7 +43,6 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-      # GitHub Pages deployment ke liye actual artifact
       - name: Upload report for GitHub Pages
         if: always()
         uses: actions/upload-pages-artifact@v5
@@ -73,5 +61,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
-
+        uses: actions/deploy-pages@v5
