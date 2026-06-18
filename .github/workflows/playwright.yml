@@ -9,6 +9,11 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
 
 jobs:
   test:
@@ -16,33 +21,46 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 24              # 👈 updated to 24
+          node-version: 24
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
+      # API tests ke liye browser install needed nahi hota.
+      # Agar UI tests bhi hain toh isko rakho.
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright API tests
-        run: npx playwright test
+        run: npx playwright test --reporter=html
 
-      - name: Upload Playwright HTML report
+      # Backup artifact - Actions tab se download ke liye
+      - name: Upload Playwright HTML report as backup
         if: always()
-        uses: actions/upload-artifact@v4   # 👈 back to upload-artifact (not upload-pages-artifact)
+        uses: actions/upload-artifact@v6
         with:
-          name: github-pages               # 👈 must be exactly "github-pages"
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      # GitHub Pages deployment ke liye correct artifact
+      - name: Upload report for GitHub Pages
+        if: always()
+        uses: actions/upload-pages-artifact@v5
+        with:
           path: playwright-report/
 
   deploy:
     needs: test
     if: always()
     runs-on: ubuntu-latest
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
