@@ -7,8 +7,9 @@ on:
       - "test-*"
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   auto-pr-merge:
@@ -16,6 +17,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.AUTO_MERGE_TOKEN }}
+
+      - name: Merge latest main into feature branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          BEHIND=$(git rev-list HEAD..origin/main --count)
+          if [ "$BEHIND" -gt 0 ]; then
+            echo "Branch is $BEHIND commits behind main. Merging..."
+            git merge origin/main --no-edit
+            git push origin HEAD
+          else
+            echo "Branch is up to date with main. No merge needed."
+          fi
+
       - name: Create PR and Enable Auto Merge
         env:
           GH_TOKEN: ${{ secrets.AUTO_MERGE_TOKEN }}
@@ -23,11 +44,8 @@ jobs:
           REPO_NAME: ${{ github.repository }}
         run: |
           PR_URL=$(gh pr list --repo "$REPO_NAME" --head "$BRANCH_NAME" --base main --state open --json url --jq '.[0].url')
-
           if [ -z "$PR_URL" ]; then
             PR_URL=$(gh pr create --repo "$REPO_NAME" --base main --head "$BRANCH_NAME" --title "Auto PR: $BRANCH_NAME" --body "Auto-created PR from branch: $BRANCH_NAME")
           fi
-
           echo "Pull Request: $PR_URL"
-
           gh pr merge "$PR_URL" --auto --squash --delete-branch
