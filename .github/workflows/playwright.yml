@@ -76,7 +76,7 @@ jobs:
     steps:
       - name: check test results
         run: |
-          if ["${{ needs.test.result }}" == "Success" ]; then
+          if ["${{ needs.test.result }}" == "success" || "${{ needs.test.result }}" == "Success" ]; then
             echo "Tests passed successfully."
             exit 0
           else
