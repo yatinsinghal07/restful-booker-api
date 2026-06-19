@@ -69,3 +69,17 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+  results:
+    needs: test
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: check test results
+        run: |
+          if ["${{ needs.test.result }}" == "Success" ]; then
+            echo "Tests passed successfully."
+            exit 0
+          else
+            echo "Tests failed. Please check the Playwright report for details."
+            exit 1
+          fi
