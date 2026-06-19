@@ -1,4 +1,4 @@
-name: Auto PR and Auto Merge
+﻿name: Auto PR and Auto Merge
 
 on:
   push:
