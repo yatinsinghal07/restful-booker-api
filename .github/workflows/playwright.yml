@@ -71,8 +71,8 @@ jobs:
           fi
 
   deploy:
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.test.result == 'success'
+    needs: results
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.results.result == 'success'
     runs-on: ubuntu-latest
 
     environment:
