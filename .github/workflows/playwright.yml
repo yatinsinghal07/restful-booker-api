@@ -53,6 +53,12 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: playwright-report/
+
+      - name: Upload report for GitHub Pages
+        if: always() && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: playwright-report/
         
   results:
     needs: test
@@ -72,7 +78,7 @@ jobs:
 
   deploy:
     needs: [test, results]
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.ref == 'refs/heads/main' && needs.results.result == 'success')
+    if: needs.results.result == 'success' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
 
     environment:
