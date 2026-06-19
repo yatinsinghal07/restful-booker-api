@@ -52,7 +52,7 @@ jobs:
         if: github.event_name == 'push' && always()
         uses: actions/upload-pages-artifact@v5
         with:
-          path: playwright-report/
+            path: playwright-report/
 
       - name: Upload report for GitHub Pages
         if: always() && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
