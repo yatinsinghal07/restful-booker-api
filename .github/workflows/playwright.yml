@@ -74,9 +74,9 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: check test results
+      - name: Check test results
         run: |
-          if ["${{ needs.test.result }}" == "success" || "${{ needs.test.result }}" == "Success" ]; then
+          if [[ "${{ needs.test.result }}" == "success" ]]; then
             echo "Tests passed successfully."
             exit 0
           else
