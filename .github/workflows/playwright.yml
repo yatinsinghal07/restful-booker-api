@@ -1,6 +1,8 @@
 name: Playwright API Tests
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
   workflow_dispatch:
@@ -32,15 +34,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # API tests ke liye browser install needed nahi hota.
-      # Agar UI tests bhi hain toh isko rakho.
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright API tests
         run: npx playwright test --reporter=html
 
-      # Backup artifact - Actions tab se download ke liye
       - name: Upload Playwright HTML report as backup
         if: always()
         uses: actions/upload-artifact@v6
@@ -49,16 +48,15 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-      # GitHub Pages deployment ke liye correct artifact
       - name: Upload report for GitHub Pages
-        if: always()
+        if: github.event_name == 'push' && always()
         uses: actions/upload-pages-artifact@v5
         with:
           path: playwright-report/
 
   deploy:
     needs: test
-    if: always()
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.test.result == 'success'
     runs-on: ubuntu-latest
 
     environment:
@@ -69,10 +67,12 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
   results:
     needs: test
     if: always()
     runs-on: ubuntu-latest
+
     steps:
       - name: Check test results
         run: |
