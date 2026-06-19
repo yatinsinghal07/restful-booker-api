@@ -7,9 +7,8 @@ on:
       - "test-*"
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
-  actions: write
 
 jobs:
   auto-pr-merge:
@@ -17,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create PR, wait for checks, merge, and trigger deploy
+      - name: Create PR and Enable Auto Merge
         env:
           GH_TOKEN: ${{ secrets.AUTO_MERGE_TOKEN }}
           BRANCH_NAME: ${{ github.ref_name }}
@@ -31,14 +30,4 @@ jobs:
 
           echo "Pull Request: $PR_URL"
 
-          PR_NUMBER=$(gh pr view "$PR_URL" --repo "$REPO_NAME" --json number --jq '.number')
-
-          echo "Waiting for required checks to pass..."
-          sleep 20
-          gh pr checks "$PR_NUMBER" --repo "$REPO_NAME" --required --watch --fail-fast
-
-          echo "Merging PR..."
-          gh pr merge "$PR_NUMBER" --repo "$REPO_NAME" --squash --delete-branch
-
-          echo "Triggering Playwright workflow on main..."
-          gh workflow run playwright.yml --repo "$REPO_NAME" --ref main
+          gh pr merge "$PR_URL" --auto --squash --delete-branch
