@@ -1,4 +1,4 @@
-name: Auto PR and Auto Merge
+﻿name: Auto PR and Auto Merge
 
 on:
   push:
@@ -28,14 +28,27 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main
+
           BEHIND=$(git rev-list HEAD..origin/main --count)
+
           if [ "$BEHIND" -gt 0 ]; then
             echo "Branch is $BEHIND commits behind main. Merging..."
-            git merge origin/main --no-edit
+
+            # Use ours strategy for workflow files to avoid conflicts
+            git merge origin/main --no-edit --strategy-option=theirs 2>/dev/null || {
+              # If merge fails, accept main's version for conflicted files
+              git checkout --theirs .github/workflows/ 2>/dev/null || true
+              git add .github/workflows/ 2>/dev/null || true
+              git commit --no-edit -m "chore: merge main, accept main workflow versions"
+            }
+
             git push origin HEAD
+            echo "Merged main into $BRANCH_NAME successfully."
           else
             echo "Branch is up to date with main. No merge needed."
           fi
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
 
       - name: Create PR and Enable Auto Merge
         env:
