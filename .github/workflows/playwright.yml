@@ -14,15 +14,12 @@ permissions:
   actions: read
 
 concurrency:
-  group: github-pages
+  group: github-pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GMAIL_ID: ${{ secrets.GMAIL_ID }}
-      GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
 
     steps:
       - name: Checkout code
@@ -57,28 +54,6 @@ jobs:
         with:
           path: playwright-report/
 
-      - name: Send test result email
-        if: always() && env.GMAIL_ID != '' && env.GMAIL_APP_PASSWORD != ''
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ env.GMAIL_ID }}
-          password: ${{ env.GMAIL_APP_PASSWORD }}
-          to: ${{ env.GMAIL_ID }}
-          from: GitHub Actions <${{ env.GMAIL_ID }}>
-          subject: "[${{ job.status == 'success' && 'PASSED' || 'FAILED' }}] Playwright Test Report - ${{ github.ref_name }}"
-          body: |
-            Playwright API Test Run Complete!
-
-            Status     : ${{ job.status == 'success' && 'PASSED' || 'FAILED' }}
-            Branch     : ${{ github.ref_name }}
-            Commit     : ${{ github.sha }}
-            Triggered  : ${{ github.event_name }}
-            Run URL    : https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-            Download full HTML report from the link above (Artifacts section).
-
   results:
     needs: test
     if: always()
@@ -95,13 +70,45 @@ jobs:
             exit 1
           fi
 
-  deploy:
-    needs: [test, results]
-    if: needs.results.result == 'success' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+  notify-test:
+    needs: results
+    if: always()
     runs-on: ubuntu-latest
+
     env:
       GMAIL_ID: ${{ secrets.GMAIL_ID }}
       GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+
+    steps:
+      - name: Send test result email
+        if: always() && env.GMAIL_ID != '' && env.GMAIL_APP_PASSWORD != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ env.GMAIL_ID }}
+          password: ${{ env.GMAIL_APP_PASSWORD }}
+          to: ${{ env.GMAIL_ID }}
+          from: GitHub Actions <${{ env.GMAIL_ID }}>
+          subject: "[${{ needs.results.result == 'success' && 'PASSED' || 'FAILED' }}] Playwright Test Report - ${{ github.ref_name }}"
+          body: |
+            Playwright API Test Run Complete!
+
+            Status     : ${{ needs.results.result == 'success' && 'PASSED' || 'FAILED' }}
+            Branch     : ${{ github.ref_name }}
+            Commit     : ${{ github.sha }}
+            Triggered  : ${{ github.event_name }}
+            Run URL    : https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Download full HTML report from the Run URL above under Artifacts section.
+
+  deploy:
+    needs: results
+    if: needs.results.result == 'success' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
 
     environment:
       name: github-pages
@@ -111,3 +118,34 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  notify-deploy:
+    needs: deploy
+    if: always() && needs.deploy.result != 'skipped'
+    runs-on: ubuntu-latest
+
+    env:
+      GMAIL_ID: ${{ secrets.GMAIL_ID }}
+      GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+
+    steps:
+      - name: Send deploy result email
+        if: always() && env.GMAIL_ID != '' && env.GMAIL_APP_PASSWORD != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ env.GMAIL_ID }}
+          password: ${{ env.GMAIL_APP_PASSWORD }}
+          to: ${{ env.GMAIL_ID }}
+          from: GitHub Actions <${{ env.GMAIL_ID }}>
+          subject: "[${{ needs.deploy.result == 'success' && 'DEPLOYED' || 'DEPLOY FAILED' }}] Playwright Report Published - ${{ github.ref_name }}"
+          body: |
+            Playwright Report Deploy Complete!
+
+            Status     : ${{ needs.deploy.result == 'success' && 'DEPLOYED' || 'FAILED' }}
+            Branch     : ${{ github.ref_name }}
+            Report URL : ${{ needs.deploy.outputs.page_url }}
+            Run URL    : https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Click Report URL above to view the live HTML test report.
