@@ -20,6 +20,9 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      GMAIL_ID: ${{ secrets.GMAIL_ID }}
+      GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
 
     steps:
       - name: Checkout code
@@ -53,7 +56,29 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: playwright-report/
-        
+
+      - name: Send test result email
+        if: always() && env.GMAIL_ID != '' && env.GMAIL_APP_PASSWORD != ''
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ env.GMAIL_ID }}
+          password: ${{ env.GMAIL_APP_PASSWORD }}
+          to: ${{ env.GMAIL_ID }}
+          from: GitHub Actions <${{ env.GMAIL_ID }}>
+          subject: "[${{ job.status == 'success' && 'PASSED' || 'FAILED' }}] Playwright Test Report - ${{ github.ref_name }}"
+          body: |
+            Playwright API Test Run Complete!
+
+            Status     : ${{ job.status == 'success' && 'PASSED' || 'FAILED' }}
+            Branch     : ${{ github.ref_name }}
+            Commit     : ${{ github.sha }}
+            Triggered  : ${{ github.event_name }}
+            Run URL    : https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Download full HTML report from the link above (Artifacts section).
+
   results:
     needs: test
     if: always()
@@ -74,6 +99,9 @@ jobs:
     needs: [test, results]
     if: needs.results.result == 'success' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
+    env:
+      GMAIL_ID: ${{ secrets.GMAIL_ID }}
+      GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
 
     environment:
       name: github-pages
