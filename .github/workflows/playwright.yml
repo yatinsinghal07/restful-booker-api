@@ -111,24 +111,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Send deploy success email
-        if: always() && env.GMAIL_ID != '' && env.GMAIL_APP_PASSWORD != ''
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ env.GMAIL_ID }}
-          password: ${{ env.GMAIL_APP_PASSWORD }}
-          to: ${{ env.GMAIL_ID }}
-          from: GitHub Actions <${{ env.GMAIL_ID }}>
-          subject: "[${{ job.status == 'success' && 'DEPLOYED' || 'DEPLOY FAILED' }}] Playwright Report Published - ${{ github.ref_name }}"
-          body: |
-            Playwright Report Deploy Complete!
-
-            Status     : ${{ job.status == 'success' && 'DEPLOYED' || 'FAILED' }}
-            Branch     : ${{ github.ref_name }}
-            Report URL : ${{ steps.deployment.outputs.page_url }}
-            Run URL    : https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-            Click "Report URL" above to view the live HTML test report.
