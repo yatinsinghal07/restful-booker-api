@@ -1,220 +1,209 @@
-# Playwright API Automation Framework
+# restful-booker-api
 
 ![Playwright API Tests](https://github.com/yatinsinghal07/restful-booker-api/actions/workflows/playwright.yml/badge.svg)
+![GitHub Pages](https://img.shields.io/badge/Report-GitHub%20Pages-blue?logo=github)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)
+![Node.js](https://img.shields.io/badge/Node.js-24-green?logo=node.js)
 
-## Project Overview
+A Playwright + TypeScript based API test automation framework for [Restful Booker](https://restful-booker.herokuapp.com), with a fully automated CI/CD pipeline including branch protection, auto PR merge, HTML report publishing, and email notifications.
 
-This project is a Playwright TypeScript based API automation framework created for testing REST APIs using the Restful Booker API.
+🔗 **[View Live Test Report](https://yatinsinghal07.github.io/restful-booker-api)**
 
-The framework validates API endpoints such as authentication, booking creation, booking retrieval, booking update, partial update, and booking deletion. It also includes CI/CD integration using GitHub Actions.
+---
 
 ## Tech Stack
 
-| Tool / Technology | Purpose                |
-| ----------------- | ---------------------- |
-| Playwright        | API automation testing |
-| TypeScript        | Test scripting         |
-| Node.js           | Runtime environment    |
-| GitHub Actions    | CI/CD pipeline         |
-| GitHub Pages      | Publish HTML report    |
-| Gmail SMTP        | Email notification     |
-| HTML Report       | Test execution report  |
-| GitHub Artifacts  | Backup of test report  |
+| Tool | Purpose |
+|------|---------|
+| [Playwright](https://playwright.dev) | API test execution |
+| TypeScript | Type-safe test scripting |
+| Node.js 24 | Runtime environment |
+| GitHub Actions | CI/CD pipeline |
+| GitHub Pages | Live HTML report hosting |
+| Gmail SMTP | Email notifications |
+| GitHub Artifacts | Report backup (7-day retention) |
 
-## Features
-
-* API automation using Playwright
-* TypeScript based test framework
-* Common response validation utility
-* Test data management
-* HTML test report generation
-* GitHub Actions CI/CD pipeline
-* Artifact backup for Playwright HTML report
-* GitHub Pages deployment for test report
-* Email notification after main branch merge
-* Report ZIP attachment in email
-* Branch protection support using result check
+---
 
 ## Project Structure
 
-```text
-restful-booker-api/
-│
-├── tests/
-│   ├── auth.spec.ts
-│   └── booking.spec.ts
-│
-├── test-data/
-│   ├── authData.ts
-│   └── bookingData.ts
-│
-├── utils/
-│   ├── responseValidator.ts
-│   └── bookingApi.ts
-│
-├── playwright.config.ts
-├── package.json
-├── package-lock.json
-├── README.md
-└── .github/
-    └── workflows/
-        └── playwright.yml
 ```
+restful-booker-api/
+├── .github/
+│   └── workflows/
+│       ├── playwright.yml          # CI/CD pipeline (test → deploy → notify)
+│       └── auto-pr-merge.yml       # Auto PR creation and squash merge
+├── tests/
+│   ├── Booking.crud.spec.ts        # Full CRUD lifecycle (serial execution)
+│   ├── auth.spec.ts                # Auth edge cases
+│   ├── booking.spec.ts             # Booking filters and listing
+│   └── negative.spec.ts            # Negative and error scenarios
+├── utils/
+│   ├── authApi.ts                  # Auth API calls
+│   ├── authHelper.ts               # Token management
+│   ├── bookingApi.ts               # Booking API calls
+│   └── responseValidator.ts        # Shared assertion helpers
+├── types/
+│   ├── authTypes.ts                # Auth TypeScript interfaces
+│   └── bookingTypes.ts             # Booking TypeScript interfaces
+├── test-data/
+│   ├── authData.ts                 # Auth payloads
+│   └── bookingData.ts              # Booking payloads
+└── playwright.config.ts            # Playwright configuration
+```
+
+---
 
 ## Test Coverage
 
-| Module              | Test Scenario                                    | Status  |
-| ------------------- | ------------------------------------------------ | ------- |
-| Auth API            | Validate token generation with valid credentials | Covered |
-| Auth API            | Validate login with invalid credentials          | Covered |
-| Booking API         | Create booking                                   | Covered |
-| Booking API         | Get booking details                              | Covered |
-| Booking API         | Update booking                                   | Covered |
-| Booking API         | Partial update booking                           | Covered |
-| Booking API         | Delete booking                                   | Covered |
-| Response Validation | Validate status code and response headers        | Covered |
+| Suite | File | Scenarios |
+|-------|------|-----------|
+| CRUD | `Booking.crud.spec.ts` | Create → Read → Update (PUT) → Partial Update (PATCH) → Delete → Verify deletion |
+| Auth | `auth.spec.ts` | Valid credentials, invalid credentials, missing fields, empty token |
+| Filters | `booking.spec.ts` | List all bookings, filter by first name, last name, check-in/check-out date |
+| Negative | `negative.spec.ts` | Invalid booking ID, unauthorized update/delete, malformed payloads, wrong HTTP methods |
 
-## CI/CD Workflow
+---
 
-The GitHub Actions workflow is designed to run automated API tests and generate reports.
+## CI/CD Pipeline
 
-### Pull Request / Feature Branch Flow
+### Feature Branch Flow (PR)
 
-```text
-test → results
+```
+feature branch push
+        ↓
+Auto: merge latest main → conflict-free
+        ↓
+Auto: PR created + squash merge enabled
+        ↓
+test ✅ → results ✅
+(deploy and notify skipped on PR — correct behavior)
 ```
 
-For pull request branches:
+### Main Branch Flow (after merge)
 
-* Playwright API tests are executed
-* HTML report is generated
-* Report is uploaded as GitHub Actions artifact
-* Email notification is not sent
-* GitHub Pages deployment is not triggered
-
-### Main Branch Flow
-
-```text
-test → results → deploy
-        ↓          ↓
-   notify-test  notify-deploy
+```
+push to main
+        ↓
+test ✅ → results ✅ → deploy ✅ → notify-deploy 📧
+                    ↘
+                  notify-test 📧
 ```
 
-After merge to main:
+### Job Summary
 
-* Playwright API tests are executed
-* HTML report is generated
-* Report is uploaded as artifact backup
-* Report is attached in email as ZIP file
-* Report is deployed to GitHub Pages
-* Deployment email is sent with live report URL
+| Job | Trigger | Description |
+|-----|---------|-------------|
+| `test` | PR + push to main | Runs all Playwright tests, uploads report artifact |
+| `results` | After `test` | Gate job — fails pipeline if tests failed |
+| `deploy` | Push to main only | Publishes HTML report to GitHub Pages |
+| `notify-test` | Push to main only | Emails test result with report as ZIP attachment |
+| `notify-deploy` | After deploy | Emails live GitHub Pages report URL |
 
-## How to Run Locally
+---
 
-### 1. Clone the repository
+## Branch Protection
+
+`main` is protected via GitHub Rulesets:
+
+- Direct pushes to `main` are blocked
+- PRs require `results` job to pass before merge
+- All merges use squash strategy via auto-merge
+- Feature branches are auto-deleted after merge
+
+Setup path:
+```
+Repository → Settings → Rules → Rulesets → Protect main
+→ Require status checks → Add check: results
+```
+
+---
+
+## Local Setup
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Install
 
 ```bash
 git clone https://github.com/yatinsinghal07/restful-booker-api.git
 cd restful-booker-api
-```
-
-### 2. Install dependencies
-
-```bash
 npm ci
-```
-
-### 3. Install Playwright browser dependencies
-
-```bash
 npx playwright install --with-deps chromium
 ```
 
-### 4. Run tests
+### Run Tests
 
 ```bash
+# Run all tests
 npx playwright test
-```
 
-### 5. Run tests with HTML report
+# Run specific suite
+npx playwright test tests/Booking.crud.spec.ts
 
-```bash
+# Run with UI mode
+npx playwright test --ui
+
+# Generate and open HTML report
 npx playwright test --reporter=html
-```
-
-### 6. Open HTML report
-
-```bash
 npx playwright show-report
 ```
 
-## GitHub Secrets Required
+---
 
-The workflow uses Gmail SMTP for email notifications. Add the following secrets in GitHub repository settings:
+## GitHub Secrets
 
-```text
-GMAIL_ID
-GMAIL_APP_PASSWORD
+Add these in: `Repository → Settings → Secrets and variables → Actions`
+
+| Secret | Description |
+|--------|-------------|
+| `AUTO_MERGE_TOKEN` | GitHub PAT with `repo` + `workflow` scope (for auto PR merge) |
+| `GMAIL_ID` | Gmail address used for sending notifications |
+| `GMAIL_APP_PASSWORD` | 16-character Google App Password (no spaces) |
+
+> ⚠️ Never commit credentials in code. Always use GitHub Secrets.
+
+### Generating Gmail App Password
+
+```
+Google Account → Security → 2-Step Verification → ON
+Google Account → Security → App passwords → Create → Copy 16-digit password
 ```
 
-Path:
+---
 
-```text
-Repository → Settings → Secrets and variables → Actions → New repository secret
-```
+## Test Report
 
-Important:
+Reports are available in three ways after every main branch push:
 
-* `GMAIL_ID` should contain only the Gmail address
-* `GMAIL_APP_PASSWORD` should contain the 16-character Google App Password without spaces
-* Do not commit Gmail password or app password in code
+1. **GitHub Pages** — Live interactive report: [https://yatinsinghal07.github.io/restful-booker-api](https://yatinsinghal07.github.io/restful-booker-api)
+2. **Email attachment** — ZIP of HTML report sent to configured Gmail after tests complete
+3. **GitHub Actions Artifact** — Backup available for 7 days in the Actions run
 
-## Report
-
-The Playwright HTML report is available in two ways:
-
-1. GitHub Actions artifact backup
-2. Email attachment after merge to main
-3. GitHub Pages live report after successful deployment
-
-## Branch Protection
-
-The branch protection rule should use the `results` job as the required check.
-
-Recommended setup:
-
-```text
-Settings → Branches → Branch protection rule → main
-```
-
-Enable:
-
-```text
-Require status checks to pass before merging
-```
-
-Required check:
-
-```text
-results
-```
+---
 
 ## Future Enhancements
 
-* Add more API modules
-* Add smoke and regression tags
-* Add environment based execution
-* Add negative test scenarios
-* Add request and response schema validation
-* Add Allure report integration
-* Add Slack or Teams notification
-* Add test summary in email body
-* Add API coverage dashboard
+- [ ] Smoke and regression test tags (`@smoke`, `@regression`)
+- [ ] Environment-based execution (dev / staging / prod)
+- [ ] JSON Schema validation for API responses
+- [ ] Allure report integration
+- [ ] Slack / Teams notification support
+- [ ] API coverage dashboard
+- [ ] Retry logic for flaky network tests
+- [ ] Parallel test execution across multiple workers
+
+---
 
 ## Author
 
-Yatin Singhal
+**Yatin Singhal**
+
+---
 
 ## Project Status
 
-Active and ready for API automation execution through CI/CD.
+✅ Active — fully automated from commit to report delivery via CI/CD.
